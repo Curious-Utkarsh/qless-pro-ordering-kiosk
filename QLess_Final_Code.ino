@@ -7,11 +7,19 @@
 #include <WiFiManager.h>
 #include <FS.h>
 #include <SPIFFS.h>
+#include <MFRC522.h>
+#include <HTTPClient.h>
+#include <ArduinoJson.h>
+
+//MFRC 522
+//#define RST_PIN         22          
+//#define SS_PIN          21         
 
 //Buttons
 #define nextPin   16 //RX2 //INPUT_PULLUP
 #define selPin    27 //D27 //INPUT_PULLUP
 #define prevPin   32 //D32 //INPUT_PULLUP
+#define backPin   12 //D32 //INPUT_PULLUP
 
 //Led cum buzz 
 #define redLed       33 //D33
@@ -24,12 +32,39 @@ byte cursorPosn = 0; // for startScreen
 byte nVal = 0;
 byte sVal = 0;
 byte pVal = 0;
-byte spritePosn = 1; // for placeOrder
+byte st = 0;
 
 String currentTime = "";
 String currentDate = "";
 byte hh = 0;
 byte mm = 0;
+
+byte bValue = 0;
+byte cartPointer = 0;
+
+String menuData = "";
+
+//Item
+String beverage[6] = {"Frooti", "Slice", "Nimboos"};
+String snacks[6];
+String lunch[6];
+String icecream[6];
+
+//Cost
+String beverageC[6] = {"10", "20", "30"};
+String snacksC[6];
+String lunchC[6];
+String icecreamC[6];
+
+String dataItem = "";
+String dataCost = "";
+
+byte spritePosn = 1; // to select order category
+byte arrLength = 0; //length of selected category array
+byte arrCnt = 0; //which item you chose in array
+byte quantity = 1; //selected item quantity
+byte cart = 0; //cart line spacing
+
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", 19800);
@@ -39,9 +74,6 @@ TFT_eSPI tft = TFT_eSPI();
 void setup()
 {
   Serial.begin(115200);
-  delay(10);
-  SPI.begin();
-  delay(10);
   pinMode(prevPin, INPUT_PULLUP);
   pinMode(selPin,  INPUT_PULLUP);
   pinMode(nextPin, INPUT_PULLUP);
@@ -78,12 +110,18 @@ void setup()
   }
   timeClient.begin();
   
-  tft.begin();
+  tft.init();
   tft.setRotation(3);  
   if (!SPIFFS.begin()) 
   {
     while (1) yield();
   }
+
+  getData();
+  delay(2000);
+
+//  mfrc522.PCD_Init();   // Init MFRC522
+//  delay(4000);
 }
 
 void loop()
@@ -121,13 +159,6 @@ void loop()
       c = 1;
     }
     placeOrder();
-//    if(digitalRead(backPin) == LOW && currentPage != -2)
-//    {
-//      while(digitalRead(backPin) == LOW)
-//      {}
-//      currentPage = 0;
-//      c = 0;
-//    }
   }
 
   //Add Money
@@ -140,13 +171,6 @@ void loop()
       c = 1;
     }
     addMoney();
-//    if(digitalRead(backPin) == LOW && currentPage != -2)
-//    {
-//      while(digitalRead(backPin) == LOW)
-//      {}
-//      currentPage = 0;
-//      c = 0;
-//    }
   }
 
   //Check Balance
@@ -159,12 +183,5 @@ void loop()
       c = 1;
     }
     checkBalance();
-//    if(digitalRead(backPin) == LOW && currentPage != -2)
-//    {
-//      while(digitalRead(backPin) == LOW)
-//      {}
-//      currentPage = 0;
-//      c = 0;
-//    }
   }
 }
