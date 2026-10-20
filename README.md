@@ -3,7 +3,7 @@
 [![ESP32](https://img.shields.io/badge/MCU-ESP32-E7352C)](https://www.espressif.com/)
 [![TFT](https://img.shields.io/badge/UI-TFT__eSPI-555)](https://github.com/Bodmer/TFT_eSPI)
 
-The second stage of my [RFID canteen payment system](https://github.com/Curious-Utkarsh/Canteen-Management-System), built solo in April–May 2023: a self-service kiosk, similar to fast-food ordering screens, with a full-colour TFT menu, order summary and balance screens, and payment by tapping a college ID card.
+The second stage of my [RFID canteen payment system](https://github.com/Curious-Utkarsh/rfid-canteen-payment-system), built solo in April–May 2023: a self-service kiosk, similar to fast-food ordering screens, with a full-colour TFT menu, order summary and balance screens, and payment by tapping a college ID card.
 
 ## Demo
 
